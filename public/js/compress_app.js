@@ -1,5 +1,5 @@
 /**
- * compress_app.js - AptiTalent Tutor Video Compressor Frontend Logic
+ * compress_app.js - AptiTalent Educational Video Compressor Frontend Logic
  */
 
 document.addEventListener("DOMContentLoaded", () => {

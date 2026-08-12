@@ -13,6 +13,7 @@ from .ffmpeg_manager import (
 )
 from .encoder import (
     encode_single_variant,
+    encode_video,
     encode_dual_bundle,
 )
 
@@ -23,5 +24,6 @@ __all__ = [
     "verify_video_input",
     "get_ffmpeg_version",
     "encode_single_variant",
+    "encode_video",
     "encode_dual_bundle",
 ]

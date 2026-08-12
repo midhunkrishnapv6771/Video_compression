@@ -11,7 +11,7 @@ Modules:
   - utils: Security sanitization and hashing utilities.
 """
 
-from .core import encode_dual_bundle, encode_single_variant, get_ffmpeg_bin
+from .core import encode_video, encode_dual_bundle, encode_single_variant, get_ffmpeg_bin
 from .profiles import get_profile, list_profiles, BaseProfile
 from .metrics import compute_ssim_psnr, evaluate_quality_gate
 from .benchmarks import run_suite
@@ -19,6 +19,7 @@ from .benchmarks import run_suite
 __version__ = "1.0.0"
 
 __all__ = [
+    "encode_video",
     "encode_dual_bundle",
     "encode_single_variant",
     "get_ffmpeg_bin",

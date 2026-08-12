@@ -1,8 +1,8 @@
 """
 apti_compress.core.encoder
 ==========================
-Production Dual-Store Ultra-Compression Engine (AptiTalent).
-Pipeline architecture generating Primary (AV1/HEVC) + Universal Fallback (H.264) video bundles.
+AptiTalent Educational Video Compression Engine.
+Pipeline architecture for profile-driven video compression (AV1/HEVC/H.264).
 """
 
 import os
@@ -12,8 +12,9 @@ import json
 import uuid
 import shutil
 import logging
+import subprocess
 from pathlib import Path
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, Tuple
 
 from ..profiles import get_profile, BaseProfile, DEFAULT_PROFILE_NAME
 from ..utils.security import sanitize_filename
@@ -63,7 +64,7 @@ def encode_single_variant(
     codec_type: str,
     profile: BaseProfile,
     retries: int = 1,
-) -> float:
+) -> Tuple[str, float]:
     """Encode single video variant driven generically by profile strategy object."""
     vf = profile.get_video_filter()
     codec_args = profile.get_codec_args(codec_type)
@@ -147,10 +148,9 @@ def encode_single_variant(
     raise RuntimeError(last_err or f"Encoding failed for {codec_type} after {retries+1} attempts.")
 
 
-import subprocess  # Ensure imported
 
 
-def encode_dual_bundle(
+def encode_video(
     input_path: str,
     output_dir: Optional[str] = None,
     profile_name_or_obj: Union[str, BaseProfile] = DEFAULT_PROFILE_NAME,
@@ -158,9 +158,8 @@ def encode_dual_bundle(
     preferred_codec: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Single-file compression engine.
-    Produces exactly ONE output file using the selected codec and profile.
-    No fallback streams. Output = one compressed .mp4.
+    Core video compression engine.
+    Encodes video into a single optimized MP4 file using selected profile and codec.
     """
     t_start = time.time()
     input_path = str(Path(input_path).resolve())
@@ -232,21 +231,30 @@ def encode_dual_bundle(
         json.dump(run_log, f, indent=2)
 
     logger.info(
-        f"[encoder] ✓ Done [{profile.name.upper()}] | {primary_type.upper()}: {s_prim:.2f} MB "
+        f"[encoder] [OK] Done [{profile.name.upper()}] | {primary_type.upper()}: {s_prim:.2f} MB "
         f"(was {orig_size_mb:.2f} MB) | {elapsed_sec:.1f}s"
     )
 
     return {
         "bundle_dir": str(out_dir_path),
         "profile": profile.name,
-        "primary_path": primary_path,
-        "primary_codec": primary_type,
+        "output_path": primary_path,
+        "primary_path": primary_path,  # Kept for backward compatibility
+        "output_codec": primary_type,
+        "primary_codec": primary_type,  # Kept for backward compatibility
         "fallback_path": None,
         "benchmark_log": meta_path,
         "orig_size_mb": orig_size_mb,
-        "primary_size_mb": s_prim,
+        "output_size_mb": s_prim,
+        "primary_size_mb": s_prim,     # Kept for backward compatibility
         "fallback_size_mb": 0.0,
         "total_stored_mb": s_prim,
         "duration_sec": duration,
         "elapsed_sec": elapsed_sec,
     }
+
+
+def encode_dual_bundle(*args, **kwargs) -> Dict[str, Any]:
+    """Alias for encode_video provided for backward compatibility."""
+    return encode_video(*args, **kwargs)
+

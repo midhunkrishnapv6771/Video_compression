@@ -1,8 +1,8 @@
 """
 apti_compress.server.compressor_server
 ========================================
-Tutor Video Compression Web Server (FastAPI).
-Local web server serving the AptiTalent tutor video compression interface.
+Educational Video Compression Web Server (FastAPI).
+Local web server serving the AptiTalent educational video compression interface.
 Starts on http://localhost:8765.
 """
 
@@ -25,10 +25,10 @@ _SRC_DIR = _SERVER_DIR.parents[1]
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
-from apti_compress.core import encode_dual_bundle, get_ffmpeg_bin
+from apti_compress.core import encode_video, get_ffmpeg_bin
 from apti_compress.profiles import get_profile, CustomProfile
 
-app = FastAPI(title="AptiTalent Tutor Video Compressor Engine")
+app = FastAPI(title="AptiTalent Educational Video Compressor Engine")
 
 # Resolve project root: src/apti_compress/server/ -> 3 levels up
 _SERVER_DIR = Path(__file__).resolve().parent
@@ -61,6 +61,7 @@ async def check_status():
 @app.get("/api/presets")
 async def get_presets():
     return {
+        "quality": {"label": "Quality Optimized", "description": "1080p @ 30fps — Highest quality"},
         "balanced": {"label": "Balanced", "description": "720p @ 30fps — Recommended sweet-spot"},
         "storage": {"label": "Storage Optimized", "description": "540p @ 20fps — Compact size, readable text"},
         "extreme": {"label": "Extreme Compression", "description": "360p @ 15fps — High compression"},
@@ -79,7 +80,7 @@ async def compress_video(
     custom_bitrate: str = Form(None)
 ):
     """
-    Receives video file, saves to temporary location, compresses video using dual-store encoding,
+    Receives video file, saves to temporary location, compresses video using profile-driven encoding,
     and returns metadata JSON.
     """
     if not file.filename:
@@ -112,20 +113,18 @@ async def compress_video(
         else:
             # Map web preset names to profile names
             profile_map = {
-                "high": "quality",
-                "balanced": "balanced",
-                "max": "storage",
-                "storage": "storage",
                 "quality": "quality",
+                "balanced": "balanced",
+                "storage": "storage",
                 "extreme": "extreme",
                 "ultra_extreme": "ultra_extreme",
             }
             profile_name = profile_map.get(quality, "balanced")
             profile = get_profile(profile_name)
         
-        # Use dual-store encoding offloaded to background threadpool
+        # Encoding offloaded to background threadpool
         res = await asyncio.to_thread(
-            encode_dual_bundle,
+            encode_video,
             input_path=str(temp_input_path),
             output_dir=str(_COMPRESSED_DIR),
             profile_name_or_obj=profile,
@@ -138,26 +137,26 @@ async def compress_video(
         except Exception:
             pass
             
-        # Calculate savings from primary codec
+        # Calculate savings
         orig_mb = res["orig_size_mb"]
-        primary_mb = res["primary_size_mb"]
-        fallback_mb = res["fallback_size_mb"]
-        total_mb = res["total_stored_mb"]
-        reduction_pct = ((orig_mb - primary_mb) / orig_mb * 100) if orig_mb > 0 else 0.0
+        out_mb = res.get("output_size_mb") or res.get("primary_size_mb", 0.0)
+        out_path = res.get("output_path") or res.get("primary_path")
+        out_codec = res.get("output_codec") or res.get("primary_codec")
+        reduction_pct = ((orig_mb - out_mb) / orig_mb * 100) if orig_mb > 0 else 0.0
         
         return JSONResponse({
             "success": True,
             "result": {
-                "output_path": res["primary_path"],
-                "filename": Path(res["primary_path"]).name,
+                "output_path": out_path,
+                "filename": Path(out_path).name,
                 "orig_mb": round(orig_mb, 2),
-                "output_mb": round(primary_mb, 2),
-                "fallback_mb": round(fallback_mb, 2) if fallback_mb else 0,
-                "total_mb": round(total_mb, 2),
+                "output_mb": round(out_mb, 2),
+                "fallback_mb": 0.0,
+                "total_mb": round(out_mb, 2),
                 "reduction_pct": round(reduction_pct, 1),
                 "elapsed_sec": round(res["elapsed_sec"], 1),
                 "preset": profile_name,
-                "primary_codec": res["primary_codec"],
+                "primary_codec": out_codec,
                 "bundle_dir": res["bundle_dir"]
             }
         })
@@ -187,7 +186,7 @@ async def open_compressed_folder():
 
 def run_server(host: str = "127.0.0.1", port: int = 8765):
     print("=" * 65)
-    print("  🚀 AptiTalent Tutor Video Compressor Server Starting...")
+    print("  🚀 AptiTalent Educational Video Compressor Server Starting...")
     print(f"  🌐 URL: http://{host}:{port}")
     print("=" * 65)
     uvicorn.run(app, host=host, port=port, log_level="info")

@@ -9,7 +9,7 @@ import sys
 import argparse
 from typing import List, Optional
 
-from .core import encode_dual_bundle, auto_install_ffmpeg, get_ffmpeg_bin
+from .core import encode_video, auto_install_ffmpeg, get_ffmpeg_bin
 from .profiles import list_profiles, CustomProfile
 from .benchmarks import run_suite, CONTENT_CATEGORIES
 
@@ -17,7 +17,7 @@ from .benchmarks import run_suite, CONTENT_CATEGORIES
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="apti-compress",
-        description="AptiTalent Dual-Store Modular Video Compression Engine & Benchmark Suite",
+        description="AptiTalent Configurable Video Compression Engine & Benchmark Suite",
     )
     subparsers = parser.add_subparsers(dest="command", help="Subcommand to execute")
 
@@ -47,7 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("setup-ffmpeg", help="Verify or download static FFmpeg release")
 
     # Subcommand: server
-    p_server = subparsers.add_parser("server", help="Start the tutor video compression web application")
+    p_server = subparsers.add_parser("server", help="Start the educational video compression web application")
     p_server.add_argument("--port", type=int, default=8765, help="Port to run server on (default: 8765)")
     p_server.add_argument("--host", type=str, default="127.0.0.1", help="Host address (default: 127.0.0.1)")
 
@@ -76,23 +76,19 @@ def main(args_list: Optional[List[str]] = None) -> int:
                 from .profiles import get_profile
                 profile = get_profile(args.profile)
             
-            res = encode_dual_bundle(
+            res = encode_video(
                 input_path=args.input,
                 profile_name_or_obj=profile,
                 output_dir=args.output_dir,
                 overwrite=args.overwrite,
             )
             print()
-            print("  [OK] Dual-Store Bundle Summary:")
+            print("  [OK] Compression Summary:")
             print(f"       Profile Mode:    {res['profile'].upper()}")
-            print(f"       Original size:   {res['orig_size_mb']:.2f} MB [measured]")
-            print(f"       Primary ({res['primary_codec'].upper()}):   {res['primary_size_mb']:.2f} MB [measured]")
-            if res["fallback_path"]:
-                print(f"       H.264 Fallback:  {res['fallback_size_mb']:.2f} MB [measured]")
-            print(f"       Total Output Size: {res['total_stored_mb']:.2f} MB [measured]")
-            print(f"       Execution Time:  {res['elapsed_sec']:.1f} seconds [measured]")
-            print(f"       Bundle Folder:   {res['bundle_dir']}")
-            print(f"       HTML Player:     {res['html_player']}")
+            print(f"       Original size:   {res['orig_size_mb']:.2f} MB")
+            print(f"       Output ({res['output_codec'].upper()}):    {res['output_size_mb']:.2f} MB")
+            print(f"       Execution Time:  {res['elapsed_sec']:.1f} seconds")
+            print(f"       Output Folder:   {res['bundle_dir']}")
             print(f"       Run Metadata:    {res['benchmark_log']}")
             print()
             return 0
@@ -106,10 +102,12 @@ def main(args_list: Optional[List[str]] = None) -> int:
         return 0
 
     elif args.command == "list-profiles":
+        from .profiles import get_profile
         print()
         print("Registered Compression Profiles:")
         print("-" * 60)
-        for p in list_profiles():
+        for name in list_profiles():
+            p = get_profile(name).to_dict()
             print(f"  • Key:          {p['name']}")
             print(f"    Name:         {p['display_name']}")
             print(f"    Description:  {p['description']}")

@@ -1,9 +1,9 @@
 @echo off
 setlocal
-title AptiTalent - Tutor Video Compressor Web Server
+title AptiTalent - Educational Video Compressor Web Server
 
 echo ========================================================================
-echo   AptiTalent Tutor Educational Video Compressor Engine
+echo   AptiTalent Educational Video Compressor Engine
 echo ========================================================================
 echo.
 echo [1/2] Checking Python environment...

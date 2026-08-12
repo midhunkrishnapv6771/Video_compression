@@ -1,24 +1,25 @@
-# AptiTalent Tutor Video Compressor Engine
+# AptiTalent Educational Video Compressor Engine
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![FFmpeg](https://img.shields.io/badge/FFmpeg-7.1.1-green.svg)](https://ffmpeg.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A production-grade video compression engine optimized for educational screen recordings. Features a modern web interface with progressive enhancement encoding (AV1/HEVC primary + H.264 fallback), intelligent quality presets, and custom configuration options designed specifically for tutorials, lectures, and presentations.
+A high-efficiency video compression engine optimized for educational screen recordings. Features a modern web interface with profile-driven adaptive encoding (AV1, HEVC, H.264), intelligent quality presets, visual quality benchmarking (SSIM/PSNR), and custom configuration options designed specifically for tutorials, lectures, and presentations.
 
 ## ✨ Features
 
 - **Web-Based Interface**: Intuitive drag-and-drop web UI for easy video compression
-- **Progressive Enhancement Encoding**: Generates high-efficiency primary stream (AV1/HEVC) + universal H.264 fallback for maximum compatibility
-- **Smart Quality Presets**: Five proportional profiles for educational content
-  - **Quality Optimized**: 1080p @ 30fps (highest visual quality, ~2.5 Mbps cap)
-  - **Balanced**: 720p @ 30fps (recommended sweet-spot, ~1.2 Mbps cap)
-  - **Storage Optimized**: 540p @ 20fps (compact size with readable text, ~450 kbps cap)
-  - **Extreme Compression**: 360p @ 15fps (high compression, ~160 kbps cap)
-  - **Ultra Extreme**: 240p @ 12fps (maximum storage priority, ~60 kbps cap)
-- **Codec Selection**: Choose between AV1, HEVC, or H.264 for primary encoding
-- **Custom Configuration**: Control over resolution, FPS, CRF, and audio bitrate within supported parameters
+- **Profile-Driven Adaptive Encoding**: Generates high-efficiency single-file video streams using AV1, HEVC, or H.264 codecs tailored to bandwidth requirements
+- **Smart Quality Presets**: Five proportional profiles for educational content:
+  - **Quality Optimized**: 1080p @ 30fps (highest visual quality, ~2.5 Mbps video cap)
+  - **Balanced**: 720p @ 30fps (recommended sweet-spot, ~1.2 Mbps video cap)
+  - **Storage Optimized**: 540p @ 20fps (compact size with readable text, ~450 kbps video cap, ~3.7 MB/min)
+  - **Extreme Compression**: 360p @ 15fps (high compression, ~200 kbps video cap, ~1.8 MB/min)
+  - **Ultra Extreme**: 240p @ 12fps (maximum storage priority, ~100 kbps video cap, ~0.9 MB/min)
+- **Codec Selection**: Choose between AV1, HEVC, or H.264 for encoding
+- **Custom Configuration**: Full control over resolution, FPS, CRF, and audio bitrate within supported parameters
 - **Screen Recording Optimization**: Uses `-tune stillimage` for maximum text clarity at low bitrates
+- **Automated Quality Benchmarking**: Integrated SSIM and PSNR visual quality evaluation harness
 - **Automatic FFmpeg Management**: Seamless binary detection and auto-download with encoder capability detection
 - **Security Features**: File sanitization and SHA-256 integrity verification
 - **Cross-Platform**: Works on Windows, macOS, and Linux
@@ -48,7 +49,7 @@ A production-grade video compression engine optimized for educational screen rec
    python main.py setup-ffmpeg
    ```
 
-## � Usage
+## 🚀 Usage
 
 ### Web Interface (Recommended)
 
@@ -73,10 +74,10 @@ python main.py list-profiles
 #### Compress a Video File
 ```bash
 # Using preset profiles
-python main.py compress path/to/video.mp4 --profile balanced
+python main.py compress -i path/to/video.mp4 --profile balanced
 
 # Using custom configuration
-python main.py compress path/to/video.mp4 --profile custom --resolution 1280x720 --fps 30 --crf 23 --audio-bitrate 128k
+python main.py compress -i path/to/video.mp4 --profile custom --resolution 1280x720 --fps 30 --crf 23 --audio-bitrate 128k
 ```
 
 #### Run Benchmark Suite
@@ -106,14 +107,14 @@ research_for_screen_recording/
 │       │
 │       ├── core/                        # Core encoding engine
 │       │   ├── __init__.py
-│       │   ├── encoder.py               # Progressive enhancement encoding pipeline
+│       │   ├── encoder.py               # Profile-driven encoding pipeline
 │       │   ├── ffmpeg_manager.py        # FFmpeg management & encoder detection
 │       │   └── simple_encoder.py        # Legacy H.264 encoder (deprecated)
 │       │
 │       ├── profiles/                    # Compression profiles
 │       │   ├── __init__.py
 │       │   ├── base.py                  # Abstract base class
-│       │   └── registry.py              # Profile implementations
+│       │   └── registry.py              # Profile implementations & bitrate math
 │       │
 │       ├── server/                      # Web server
 │       │   ├── __init__.py
@@ -124,10 +125,10 @@ research_for_screen_recording/
 │       │   ├── security.py              # File sanitization
 │       │   └── hash.py                  # SHA-256 hashing
 │       │
-│       ├── metrics/                     # Quality metrics
+│       ├── metrics/                     # Quality metrics (SSIM / PSNR)
 │       │   └── __init__.py
 │       │
-│       └── benchmarks/                  # Benchmark suite
+│       └── benchmarks/                  # Multi-content benchmark suite
 │           └── __init__.py
 │
 ├── public/                              # Web interface assets
@@ -138,15 +139,28 @@ research_for_screen_recording/
 
 ## 🎨 Quality Presets
 
-| Preset | Resolution | FPS | Max Video Bitrate | Target & Readability |
-|--------|------------|-----|-------------------|----------------------|
-| **Quality Optimized** | 1080p (`1920x1080`) | 30 | 2,500 kbps | Highest visual fidelity & font detail |
-| **Balanced** | 720p (`1280x720`) | 30 | 1,200 kbps | Recommended sweet spot for tutorials |
-| **Storage Optimized** | 540p (`960x540`) | 20 | 450 kbps | Compact size with readable text & code |
-| **Extreme Compression** | 360p (`640x360`) | 15 | 200 kbps | Text-optimized extreme compression |
-| **Ultra Extreme** | 240p (`426x240`) | 12 | 100 kbps | Maximum storage priority with structural clarity |
+| Preset | Resolution | FPS | Max Video Bitrate | Total Bitrate Cap | Estimated Size / Min | Target & Readability |
+|--------|------------|-----|-------------------|-------------------|----------------------|----------------------|
+| **Quality Optimized** | 1080p (`1920x1080`) | 30 | 2,500 kbps | ~2,628 kbps | ~18.8 MB/min | Highest visual fidelity & font detail |
+| **Balanced** | 720p (`1280x720`) | 30 | 1,200 kbps | ~1,296 kbps | ~9.3 MB/min | Recommended sweet spot for tutorials |
+| **Storage Optimized** | 540p (`960x540`) | 20 | 450 kbps | ~514 kbps | ~3.7 MB/min | Compact size with readable text & code |
+| **Extreme Compression** | 360p (`640x360`) | 15 | 200 kbps | ~248 kbps | ~1.8 MB/min | Text-optimized extreme compression |
+| **Ultra Extreme** | 240p (`426x240`) | 12 | 100 kbps | ~132 kbps | ~0.9 MB/min | Maximum storage priority with structural clarity |
 
 **Custom Configuration**: Use the web interface or CLI to specify any resolution, FPS, CRF (18-40), and audio bitrate for complete control.
+
+*Note: Estimated MB/min values and bitrate caps (`-maxrate`) represent maximum ceiling budgets. Actual output file sizes vary dynamically based on video content complexity and CRF rate control.*
+
+## 📊 Quality & Compression Benchmarks
+
+The engine includes an automated benchmark harness (`apti_compress.benchmarks`) that measures real SSIM (Structural Similarity) and PSNR (Peak Signal-to-Noise Ratio) against reference videos using FFmpeg filters.
+
+To run dynamic quality benchmarks on your dataset:
+```bash
+python main.py benchmark --dataset-dir ./Sample_Videos --profile all
+```
+
+*Visual quality metrics (SSIM / PSNR), file size reduction percentages, and encoding throughput are calculated dynamically per video run based on actual video content.*
 
 ## 🔧 Configuration
 
@@ -158,10 +172,10 @@ python main.py server --host 127.0.0.1 --port 8765
 ### Profile Selection
 The web interface allows real-time profile selection. CLI usage:
 ```bash
-python main.py compress video.mp4 --profile quality
-python main.py compress video.mp4 --profile balanced
-python main.py compress video.mp4 --profile storage
-python main.py compress video.mp4 --profile extreme
+python main.py compress -i video.mp4 --profile quality
+python main.py compress -i video.mp4 --profile balanced
+python main.py compress -i video.mp4 --profile storage
+python main.py compress -i video.mp4 --profile extreme
 ```
 
 ## 🛠️ Troubleshooting

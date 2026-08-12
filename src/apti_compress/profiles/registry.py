@@ -3,9 +3,12 @@ apti_compress.profiles.registry
 ================================
 Profile registry and concrete profile implementations.
 
-Bitrate math:
-  Storage  → 98k video + 64k audio = 162 kbps total = ~1.16 MB/min  ✓
-  Extreme  → 10k video + 32k audio =  42 kbps total = ~307 KB/min   ✓
+Bitrate math (Maximum ceiling budgets; actual file sizes vary dynamically with content complexity):
+  Quality       → 2500k video + 128k audio = 2628 kbps total = ~18.80 MB/min (max budget ceiling)
+  Balanced      → 1200k video +  96k audio = 1296 kbps total =  ~9.27 MB/min (max budget ceiling)
+  Storage       →  450k video +  64k audio =  514 kbps total =  ~3.68 MB/min (max budget ceiling)
+  Extreme       →  200k video +  48k audio =  248 kbps total =  ~1.77 MB/min (max budget ceiling)
+  Ultra Extreme →  100k video +  32k audio =  132 kbps total =  ~0.94 MB/min (max budget ceiling)
 """
 
 from typing import Union, Dict, Any, Optional
@@ -29,7 +32,7 @@ class BalancedProfile(BaseProfile):
 
     def get_codec_args(self, codec_type: str) -> list:
         if codec_type == "av1":
-            return ["-c:v", "libaom-av1", "-crf", "28", "-b:v", "0",
+            return ["-c:v", "libaom-av1", "-crf", "28", "-b:v", "1200k",
                     "-maxrate", "1200k", "-bufsize", "2400k", "-cpu-used", "5"]
         elif codec_type == "hevc":
             return ["-c:v", "libx265", "-crf", "26", "-preset", "fast",
@@ -62,11 +65,11 @@ class StorageProfile(BaseProfile):
         super().__init__("storage", "Storage Optimized")
 
     def get_video_filter(self) -> str:
-        return "scale=960:540:flags=lanczos,fps=fps=20"
+        return "scale=960:540:flags=lanczos,fps=20"
 
     def get_codec_args(self, codec_type: str) -> list:
         if codec_type == "av1":
-            return ["-c:v", "libaom-av1", "-crf", "34", "-b:v", "0",
+            return ["-c:v", "libaom-av1", "-crf", "34", "-b:v", "450k",
                     "-maxrate", "450k", "-bufsize", "900k",
                     "-cpu-used", "6", "-row-mt", "1"]
         elif codec_type == "hevc":
@@ -100,7 +103,7 @@ class QualityProfile(BaseProfile):
 
     def get_codec_args(self, codec_type: str) -> list:
         if codec_type == "av1":
-            return ["-c:v", "libaom-av1", "-crf", "24", "-b:v", "0",
+            return ["-c:v", "libaom-av1", "-crf", "24", "-b:v", "2500k",
                     "-maxrate", "2500k", "-bufsize", "5000k", "-cpu-used", "3"]
         elif codec_type == "hevc":
             return ["-c:v", "libx265", "-crf", "22", "-preset", "medium",
@@ -120,7 +123,7 @@ class QualityProfile(BaseProfile):
 class ExtremeProfile(BaseProfile):
     """
     Extreme Compression — 360p @ 15fps.
-    Heavy compression tier: ~160 kbps cap. Readability is sacrificed for low file size.
+    Heavy compression tier: ~200 kbps video cap (248 kbps total). Optimized for compact size.
     """
 
     audio_bitrate = "48k"
@@ -131,14 +134,14 @@ class ExtremeProfile(BaseProfile):
         super().__init__("extreme", "Extreme Compression")
 
     def get_video_filter(self) -> str:
-        return "scale=640:360:flags=lanczos,fps=fps=15"
+        return "scale=640:360:flags=lanczos,fps=15"
 
     def get_codec_args(self, codec_type: str) -> list:
         if codec_type == "av1":
             return [
                 "-c:v", "libaom-av1",
                 "-crf", "36",
-                "-b:v", "0",
+                "-b:v", "200k",
                 "-maxrate", "200k", "-bufsize", "400k",
                 "-cpu-used", "6",
                 "-row-mt", "1",
@@ -200,7 +203,7 @@ class CustomProfile(BaseProfile):
             width, height = self.resolution.split("x")
             parts.append(f"scale={width}:{height}:flags=lanczos")
         if self.fps:
-            parts.append(f"fps=fps={self.fps}")
+            parts.append(f"fps={self.fps}")
         return ",".join(parts) if parts else "scale='min(960,iw)':-2"
 
     def get_codec_args(self, codec_type: str) -> list:
@@ -241,14 +244,14 @@ class UltraExtremeProfile(BaseProfile):
         super().__init__("ultra_extreme", "Ultra Extreme")
 
     def get_video_filter(self) -> str:
-        return "scale=426:240:flags=lanczos,fps=fps=12"
+        return "scale=426:240:flags=lanczos,fps=12"
 
     def get_codec_args(self, codec_type: str) -> list:
         if codec_type == "av1":
             return [
                 "-c:v", "libaom-av1",
                 "-crf", "42",
-                "-b:v", "0",
+                "-b:v", "100k",
                 "-maxrate", "100k", "-bufsize", "200k",
                 "-cpu-used", "6",
                 "-row-mt", "1",

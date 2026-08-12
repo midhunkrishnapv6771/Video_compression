@@ -1,7 +1,7 @@
 """
 apti_compress.core.simple_encoder
 ==================================
-LEGACY: Simple H264 Smart Encoder for AptiTalent Tutor Web UI.
+LEGACY: Simple H264 Smart Encoder for AptiTalent Educational Web UI.
 Uses `-tune stillimage` and smart CRF presets optimized for educational screen recordings.
 
 NOTE: This is a legacy implementation. The main encoder (encoder.py) uses the newer
