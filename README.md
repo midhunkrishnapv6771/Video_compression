@@ -158,9 +158,10 @@ python main.py server --host 127.0.0.1 --port 8765
 ### Profile Selection
 The web interface allows real-time profile selection. CLI usage:
 ```bash
-python main.py compress video.mp4 --profile high
+python main.py compress video.mp4 --profile quality
 python main.py compress video.mp4 --profile balanced
-python main.py compress video.mp4 --profile max
+python main.py compress video.mp4 --profile storage
+python main.py compress video.mp4 --profile extreme
 ```
 
 ## 🛠️ Troubleshooting
@@ -182,16 +183,14 @@ python main.py compress video.mp4 --profile max
 ## 📊 Technical Details
 
 ### Encoding Pipeline
-1. **Input Validation**: File format and integrity checks
-2. **Encoder Detection**: Checks for available AV1 (libaom-av1), HEVC (libx265), and H.264 (libx264) encoders
-3. **Duration Detection**: FFprobe analysis for progress tracking
-4. **Profile Application**: Applies selected compression profile (Quality/Balanced/Storage or Custom)
-5. **Progressive Enhancement Encoding**: 
-   - Primary stream: AV1 or HEVC (if available) with profile-specific settings
-   - Fallback stream: H.264 for universal compatibility
-6. **Screen Recording Optimization**: Uses `-tune stillimage` for maximum text clarity
-7. **Audio Processing**: AAC encoding at profile-specific bitrates
-8. **Fast Start**: MP4 optimization for web streaming
+1. **Input Validation**: File format and video duration analysis via FFprobe
+2. **Encoder Detection**: Inspects local build for AV1 (`libaom-av1`), HEVC (`libx265`), and H.264 (`libx264`)
+3. **Profile Strategy Application**: Applies selected profile strategy (Quality, Balanced, Storage, Extreme, Ultra Extreme, or Custom)
+4. **Target Encoding**: Encodes single compressed output file using selected codec and profile parameters
+5. **Screen Recording Optimization**: Applies `-tune stillimage` for sharp font and UI text clarity
+6. **Filename & Timestamping**: Appends resolution tag and time timestamp (`_360p_h264_204240.mp4`) to prevent file collisions
+7. **Threadpool Offloading**: Offloads encoding subprocess to background threadpool so FastAPI event loop remains responsive
+8. **Fast Start**: Applies `-movflags +faststart` for web playback compatibility
 
 ### Security
 - Input filename sanitization to prevent path traversal
