@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AptiTalent Tutor Educational Video Compressor — Simple One-Click Video Compression" />
+  <title>AptiPress · Tutor Video Compressor</title>
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="static/css/style.css" />
+</head>
+<body>
+
+  <!-- Background decorative light shapes -->
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <div class="app-container">
+
+    <!-- Header Banner -->
+    <header class="header-card">
+      <div class="brand-row">
+        <div class="brand-badge">⚡ APTIPRESS · TUTOR VIDEO COMPRESSOR</div>
+        <div class="status-pill online" id="statusPill">
+          <span class="status-dot"></span>
+          <span id="statusText">Server Online</span>
+        </div>
+      </div>
+      <h1 class="header-title">Tutor Video Compressor</h1>
+      <p class="header-subtitle">Compress pre-recorded educational videos for efficient storage and sharing.</p>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- Step 1: Quality Preset Selection Card -->
+      <section class="card preset-section">
+        <div class="card-header">
+          <span class="step-num">1</span>
+          <div>
+            <h2 class="card-title">Choose Quality & Compression Level</h2>
+            <p class="card-desc">Select a preset or configure custom settings.</p>
+          </div>
+        </div>
+
+        <div class="preset-grid">
+          <!-- Preset 1: Balanced (Default) -->
+          <div class="preset-card active" data-preset="balanced">
+            <span class="preset-badge">🟡</span>
+            <div class="preset-title">Balanced</div>
+            <div class="preset-sub">720p @ 30fps</div>
+          </div>
+
+          <!-- Preset 3: Storage Optimized -->
+          <div class="preset-card" data-preset="storage">
+            <span class="preset-badge">🟢</span>
+            <div class="preset-title">Storage Optimized</div>
+            <div class="preset-sub">540p @ 20fps, readable text</div>
+          </div>
+
+          <!-- Preset 4: Extreme Compression -->
+          <div class="preset-card" data-preset="extreme">
+            <span class="preset-badge">⚫</span>
+            <div class="preset-title">Extreme Compression</div>
+            <div class="preset-sub">360p @ 15fps, high compression</div>
+          </div>
+
+          <!-- Preset 5: Ultra Extreme -->
+          <div class="preset-card" data-preset="ultra_extreme">
+            <span class="preset-badge">⚫⚫</span>
+            <div class="preset-title">Ultra Extreme</div>
+            <div class="preset-sub">240p @ 12fps, max storage priority</div>
+          </div>
+        </div>
+
+          <!-- Codec Selection Dropdown -->
+          <div class="codec-dropdown-container">
+            <button type="button" class="codec-dropdown-btn" id="codecDropdownBtn">
+              <span id="selectedCodecText">Primary Codec: H.264</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="codec-dropdown-menu" id="codecDropdownMenu" style="display: none;">
+              <label class="codec-dropdown-option">
+                <input type="radio" name="codec" value="av1">
+                <span class="codec-option-name">AV1</span>
+                <span class="codec-option-desc">(Best compression, slow)</span>
+              </label>
+              <label class="codec-dropdown-option">
+                <input type="radio" name="codec" value="hevc">
+                <span class="codec-option-name">HEVC</span>
+                <span class="codec-option-desc">(Good compression, medium)</span>
+              </label>
+              <label class="codec-dropdown-option">
+                <input type="radio" name="codec" value="h264" checked>
+                <span class="codec-option-name">H.264</span>
+                <span class="codec-option-desc">(Fastest, compatible)</span>
+              </label>
+            </div>
+          </div>
+
+        <!-- Custom Configuration Toggle -->
+        <div class="custom-config-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="customConfigToggle" style="width: 18px; height: 18px;">
+            <span style="font-weight: 500; color: #374151;">Use Custom Configuration</span>
+          </label>
+          
+          <div id="customConfigPanel" style="display: none; margin-top: 15px; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 5px;">Resolution</label>
+              <select id="customResolution" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                <option value="">Auto</option>
+                <option value="1920x1080">1920x1080 (1080p)</option>
+                <option value="1280x720">1280x720 (720p)</option>
+                <option value="960x540">960x540 (540p)</option>
+                <option value="640x360">640x360 (360p)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 5px;">FPS</label>
+              <select id="customFps" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                <option value="">Auto</option>
+                <option value="30">30 fps</option>
+                <option value="24">24 fps</option>
+                <option value="15">15 fps</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 5px;">CRF (Quality)</label>
+              <input type="number" id="customCrf" min="18" max="40" placeholder="18-40" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 5px;">Audio Bitrate</label>
+              <select id="customBitrate" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                <option value="">Auto</option>
+                <option value="128k">128 kbps</option>
+                <option value="96k">96 kbps</option>
+                <option value="64k">64 kbps</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: File Dropzone Card -->
+      <section class="card upload-card" id="uploadCard">
+        <div class="card-header">
+          <span class="step-num">2</span>
+          <div>
+            <h2 class="card-title">Select Recorded Video</h2>
+            <p class="card-desc">Drag and drop your raw video file or browse from your computer.</p>
+          </div>
+        </div>
+
+        <!-- Drag & Drop Dropzone -->
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-content">
+            <div class="drop-icon" id="dropIcon">🎬</div>
+            <h3 class="drop-title" id="dropTitle">Drag &amp; Drop Video File Here</h3>
+            <p class="drop-sub">or click to browse your computer</p>
+            <span class="restriction-badge">Supports .mp4, .mov, .avi, .mkv video formats</span>
+            <div>
+              <button type="button" class="btn-secondary" id="browseBtn">Browse File</button>
+            </div>
+          </div>
+          <input type="file" id="fileInput" accept="video/*,.mp4,.mov,.avi,.mkv" hidden />
+        </div>
+
+        <!-- Selected File Preview Bar -->
+        <div class="selected-file-bar" id="selectedFileBar" style="display:none;">
+          <div class="file-meta">
+            <span class="file-icon">📹</span>
+            <div>
+              <div class="file-name" id="fileName">lecture_recording.mp4</div>
+              <div class="file-size" id="fileSize">0 MB</div>
+            </div>
+          </div>
+          <button type="button" class="btn-remove" id="removeFileBtn" title="Remove file">✕</button>
+        </div>
+
+        <!-- Upload Action Bar -->
+        <div class="action-bar">
+          <div class="security-note">
+            <span class="shield-icon">🛡️</span>
+            <span>Local processing only. Output saved to <strong>Compressed\</strong> folder.</span>
+          </div>
+          <button type="button" class="btn-primary" id="compressBtn" disabled>
+            <span>🗜️ Compress Video Now</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Progress Section -->
+      <section class="card progress-card" id="progressCard" style="display:none;">
+        <h2 class="card-title" id="progressTitle">Compressing Video...</h2>
+        <p class="card-desc">AptiPress is applying compression using the selected profile and codec...</p>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-status-row">
+          <span class="progress-status" id="progressStatus">Initializing FFmpeg...</span>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+      </section>
+
+      <!-- Success Result Card -->
+      <section class="card result-card success-card" id="successCard" style="display:none;">
+        <div class="result-header">
+          <span class="result-emoji">🎉</span>
+          <div>
+            <h2 class="result-title">Compression Complete!</h2>
+            <p class="result-sub">Your video has been successfully compressed and saved locally.</p>
+          </div>
+        </div>
+
+        <div class="savings-banner">
+          <div>
+            <div class="savings-label">Total Storage &amp; Bandwidth Saved</div>
+            <div style="font-size:0.82rem; color:var(--text-muted);" id="resSavingsMb">Saved 0 MB</div>
+          </div>
+          <div class="savings-pct" id="resSavingsPct">0%</div>
+        </div>
+
+        <div class="result-details">
+          <div class="detail-row">
+            <span class="detail-key">Preset Used:</span>
+            <code class="detail-val" id="resPreset">Balanced</code>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">Original File Size:</span>
+            <code class="detail-val" id="resOrigSize">0 MB</code>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">Compressed File Size:</span>
+            <code class="detail-val" id="resCompressedSize">0 MB</code>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">Saved Output Location:</span>
+            <code class="detail-val" id="resOutputPath">—</code>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button type="button" class="btn-primary" id="openFolderBtn">📁 Open Compressed Folder</button>
+          <button type="button" class="btn-secondary" id="resetBtn">🔄 Compress Another Video</button>
+        </div>
+      </section>
+
+      <!-- Error Result Card -->
+      <section class="card result-card error-card" id="errorCard" style="display:none;">
+        <div class="result-header">
+          <span class="result-emoji">⚠️</span>
+          <div>
+            <h2 class="result-title">Compression Failed</h2>
+            <p class="result-sub" id="errorMessage">An error occurred during encoding.</p>
+          </div>
+        </div>
+
+        <div class="result-actions" style="margin-top:18px;">
+          <button type="button" class="btn-secondary" id="errorResetBtn">🔄 Try Again</button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>AptiPress by AptiTalent &middot; Configurable Educational Video Compressor</p>
+    </footer>
+
+  </div>
+
+  <script src="static/js/compress_app.js"></script>
+</body>
+</html>

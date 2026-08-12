@@ -1,0 +1,28 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# FFmpeg static binaries & archives
+ffmpeg_bin/
+*.zip
+
+# Generated compressed video outputs and logs
+Compressed/*.mp4
+Compressed/*.json
+Compressed/upload_*
+!Compressed/.gitkeep
+
+# Knowledge graph cache
+graphify-out/
+
+# Environment / OS / Editor
+.env
+.venv
+env/
+venv/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
